@@ -17,7 +17,7 @@ npx hardhat run --network <network-name> scripts/deploy.ts
 npx hardhat burn --amount AMOUNT_TO_BURN
 
 <!-- approve -->
-npx hardhat approve --spender SPENDER_ADDRESS --amount AMOUNT_TO_APPROVE
+npx hardhat approve --address SPENDER_ADDRESS --amount AMOUNT_TO_APPROVE
 
 <!-- mint -->
-npx hardhat mint --to YOUR_ADDRESS --amount AMOUNT_TO_MINT
+npx hardhat mint --address YOUR_ADDRESS --amount AMOUNT_TO_MINT
