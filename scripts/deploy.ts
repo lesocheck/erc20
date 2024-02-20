@@ -5,8 +5,10 @@ const otherAddress = "0x73FFbf176633E8da706BE52620cd5A25e996B505"
 
 async function main() {
 
-  const Token = await ethers.getContractFactory('Erc20Token'); 
-  const token = await Token.deploy();
+  const [signer] = await ethers.getSigners();
+
+  const Token = await ethers.getContractFactory('Erc20Token', signer);
+  const token = await Token.deploy('Erc20Token', "E20TK", 1000);
 
   await token.deployed();
   console.log(`Erc20Token deployed to ${token.address}`);
