@@ -35,7 +35,7 @@ contract Erc20Token is IERC20 {
 
     // A number of simbols after comma
     function decimals() external pure returns(uint) {
-        return 8;
+        return 18;
     }
 
     // Total number of tokens

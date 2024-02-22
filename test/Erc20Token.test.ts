@@ -6,13 +6,12 @@ import { expect } from 'chai';
 describe('Token system', function () {
   async function deploy() {
     const 
-      [owner, user1, user2, user3, user4, user5
-    ] = await ethers.getSigners();
+      [owner, user1] = await ethers.getSigners();
 
     const Token = await ethers.getContractFactory('Erc20Token'); 
     const token = await Token.deploy('Erc20Token', "E20TK", 0);
 
-    return { owner, user1, user2, user3, user4, user5, token};
+    return { owner, user1, token};
   }
 
   it('Test mint', async function () {
