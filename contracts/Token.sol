@@ -3,14 +3,16 @@ pragma solidity ^0.8.20;
 
 import "../interfaces/IERC20.sol";
 
-contract Erc20Token is IERC20 {
-    uint totalTokens;
-    address owner;
-    string _name;
-    string _symbol;
-    mapping(address => uint) balances;
-    mapping(address => mapping(address => uint)) allowances;
 
+contract Erc20Token is IERC20 {
+    uint totalTokens; // Total supply of tokens
+    address owner; // Address of the contract owner
+    string _name; // Name of the token
+    string _symbol; // Symbol (ticker) of the token
+    mapping(address => uint) balances; // Mapping of account balances
+    mapping(address => mapping(address => uint)) allowances; // Mapping of allowances for spender addresses
+
+    // Modifier to restrict access to functions to only the owner
     modifier onlyOwner() {
         require(msg.sender == owner, "Access denied!");
         _;
@@ -20,70 +22,74 @@ contract Erc20Token is IERC20 {
         _name = tokenName;
         _symbol = tokenSymbol;
         owner = msg.sender;
-        mint(owner, initialSupply);
+        mint(owner, initialSupply); // Mint initial supply to the contract owner
     }
 
-    // Token name
+    // Function to return the name of the token (see IERC20)
     function name() external view returns(string memory) {
         return _name;
     }
 
-    // Token symbol
+    // Function to return the symbol of the token (see IERC20)
     function symbol() external view returns(string memory) {
         return _symbol;
     }
 
-    // A number of simbols after comma
+    // Function to return the number of decimals used to display token amounts (see IERC20)
     function decimals() external pure returns(uint) {
-        return 18;
+        return 18; // Decimals are often set to 18 in ERC20 tokens
     }
 
-    // Total number of tokens
+    // Function to return the total supply of the token (see IERC20)
     function totalSupply() external view returns(uint) {
         return totalTokens;
     }
 
-    // How many tokens should be at the current address
+    // Function to return the balance of the specified account (see IERC20)
     function balanceOf(address account) public view returns(uint) {
         return balances[account];
     }
 
-    // Number of tokens sent from totalSupply to the user
+    // Function to transfer tokens from the caller's account to the specified recipient (see IERC20)
     function transfer(address to, uint amount) external {
+        require(balances[msg.sender] >= amount, "Insufficient balance");
         balances[msg.sender] -= amount;
         balances[to] += amount;
         emit Transfer(msg.sender, to, amount);
     }
 
-    // Ability to change tokens between users
+    // Function to transfer tokens from one account to another using the allowance mechanism (see IERC20)
     function transferFrom(address sender, address recipient, uint amount) public {
-        allowances[sender][recipient] -= amount; 
+        require(balances[sender] >= amount, "Insufficient balance");
+        require(allowances[sender][msg.sender] >= amount, "Allowance exceeded");
+        allowances[sender][msg.sender] -= amount;
         balances[sender] -= amount;
         balances[recipient] += amount;
         emit Transfer(sender, recipient, amount);
     }
     
-    // Consent to send tokens
+    // Function to approve a spender to spend tokens on behalf of the caller (see IERC20)
     function approve(address spender, uint amount) public {
         allowances[msg.sender][spender] = amount;
         emit Approve(msg.sender, spender, amount);
     }
     
-    // Checking if a user can send a specified number of tokens to another user
+    // Function to return the remaining allowance of tokens that a spender is allowed to spend on behalf of an owner (see IERC20)
     function allowance(address _owner, address spender) public view returns(uint) {
         return allowances[_owner][spender];
     }
 
-    // Token emission
+    // Function to mint new tokens and assign them to the specified account 
     function mint(address to, uint256 amount) public onlyOwner {
-        balances[to] += amount;
         totalTokens += amount;
+        balances[to] += amount;
         emit Transfer(address(0), to, amount);
     }
 
-    // Token burning
+    // Function to burn tokens from the specified account 
     function burn(address from, uint amount) public onlyOwner {
-        balances[from] -= amount;
+        require(balances[from] >= amount, "Insufficient balance");
         totalTokens -= amount;
+        balances[from] -= amount;
     }
 }
