@@ -82,7 +82,7 @@ task("mint", "Mints tokens to a specified address")
   .setAction(async (taskArgs, hre) => {
       const { address, amount } = taskArgs;
       const Token = await hre.ethers.getContractFactory("Erc20Token"); 
-      const token = await Token.deploy('Erc20Token', "E20TK", 1000);
+      const token = await Token.deploy('Erc20Token', "E20TK");
 
       await token.mint(address, amount);
       console.log(`Minted ${amount} tokens to address ${address}`);
@@ -94,21 +94,23 @@ task("approve", "Approves spender to spend tokens on behalf of the owner")
   .setAction(async (taskArgs, hre) => {
       const { address, amount } = taskArgs;
       const Token = await hre.ethers.getContractFactory("Erc20Token"); 
-      const token = await Token.deploy('Erc20Token', "E20TK", 1000);
+      const token = await Token.deploy('Erc20Token', "E20TK");
 
+      await token.mint(address, amount);
       await token.approve(address, amount);
       console.log(`Approved ${amount} tokens for spender ${address}`);
   });
 
 task("burn", "Burns tokens from the account")
-  .addParam("from", "The address to burn tokens to")
+  .addParam("address", "The address to burn tokens to")
   .addParam("amount", "The amount of tokens to burn")
   .setAction(async (taskArgs, hre) => {
-      const { from, amount } = taskArgs;
+      const { address, amount } = taskArgs;
       const Token = await hre.ethers.getContractFactory("Erc20Token"); 
-      const token = await Token.deploy('Erc20Token', "E20TK", 1000);
+      const token = await Token.deploy('Erc20Token', "E20TK");
 
-      await token.burn(from, amount);
+      await token.mint(address, amount);
+      await token.burn(address, amount);
       console.log(`Burned ${amount} tokens`);
   });
 

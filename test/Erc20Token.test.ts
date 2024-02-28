@@ -9,7 +9,7 @@ describe('Token system', function () {
       [owner, user1] = await ethers.getSigners();
 
     const Token = await ethers.getContractFactory('Erc20Token'); 
-    const token = await Token.deploy('Erc20Token', "E20TK", 0);
+    const token = await Token.deploy('Erc20Token', "E20TK");
 
     return { owner, user1, token};
   }
@@ -39,7 +39,7 @@ describe('Token system', function () {
     expect (await token.connect(user1).transferFrom(owner.address, user1.address, 1000)).to.ok;
     expect (await token.balanceOf(user1.address)).to.be.equals(1000);
 
-    await expect(token.connect(user1).transferFrom(owner.address, user1.address, 100)).to.be.rejectedWith("Arithmetic operation overflowed outside of an unchecked block");
+    await expect(token.connect(user1).transferFrom(owner.address, user1.address, 100)).to.be.rejectedWith("VM Exception while processing transaction: revert");
   });
 
   it('Test burn', async function () {
@@ -54,6 +54,6 @@ describe('Token system', function () {
     expect(await token.balanceOf(owner.address)).to.be.equals(0);
 
     // reverted
-    await expect(token.connect(owner).burn(owner.address, 1000)).to.be.rejectedWith("Arithmetic operation overflowed outside of an unchecked block");
+    await expect(token.connect(owner).burn(owner.address, 1000)).to.be.rejectedWith("VM Exception while processing transaction: revert");
   });
 });

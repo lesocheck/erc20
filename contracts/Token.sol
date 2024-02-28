@@ -12,17 +12,20 @@ contract Erc20Token is IERC20 {
     mapping(address => uint) balances; // Mapping of account balances
     mapping(address => mapping(address => uint)) allowances; // Mapping of allowances for spender addresses
 
-    // Modifier to restrict access to functions to only the owner
     modifier onlyOwner() {
         require(msg.sender == owner, "Access denied!");
         _;
     }
 
-    constructor(string memory tokenName, string memory tokenSymbol, uint initialSupply) {
+    modifier checkBalanceForEnoughTokens(address from, uint amount) {
+        require(balances[from] >= amount, "Insufficient tokens available!");
+        _;
+    }
+
+    constructor(string memory tokenName, string memory tokenSymbol) {
         _name = tokenName;
         _symbol = tokenSymbol;
         owner = msg.sender;
-        mint(owner, initialSupply); // Mint initial supply to the contract owner
     }
 
     // Function to return the name of the token (see IERC20)
@@ -51,17 +54,20 @@ contract Erc20Token is IERC20 {
     }
 
     // Function to transfer tokens from the caller's account to the specified recipient (see IERC20)
-    function transfer(address to, uint amount) external {
-        require(balances[msg.sender] >= amount, "Insufficient balance");
+    function transfer(address to, uint amount) external checkBalanceForEnoughTokens(msg.sender, amount) {
+        require(to != address(0), 'Recipient address is not valid');
+
         balances[msg.sender] -= amount;
         balances[to] += amount;
         emit Transfer(msg.sender, to, amount);
     }
 
     // Function to transfer tokens from one account to another using the allowance mechanism (see IERC20)
-    function transferFrom(address sender, address recipient, uint amount) public {
-        require(balances[sender] >= amount, "Insufficient balance");
+    function transferFrom(address sender, address recipient, uint amount) public checkBalanceForEnoughTokens(sender, amount) {
+        require(sender != address(0), 'Sender address is not valid');
+        require(recipient != address(0), 'Recipient address is not valid');
         require(allowances[sender][msg.sender] >= amount, "Allowance exceeded");
+        
         allowances[sender][msg.sender] -= amount;
         balances[sender] -= amount;
         balances[recipient] += amount;
@@ -87,8 +93,7 @@ contract Erc20Token is IERC20 {
     }
 
     // Function to burn tokens from the specified account 
-    function burn(address from, uint amount) public onlyOwner {
-        require(balances[from] >= amount, "Insufficient balance");
+    function burn(address from, uint amount) public onlyOwner checkBalanceForEnoughTokens(from, amount) {
         totalTokens -= amount;
         balances[from] -= amount;
     }

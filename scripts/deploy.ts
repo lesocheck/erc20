@@ -8,7 +8,7 @@ async function main() {
   const [signer] = await ethers.getSigners();
 
   const Token = await ethers.getContractFactory('Erc20Token', signer);
-  const token = await Token.deploy('Erc20Token', "E20TK", 1000);
+  const token = await Token.deploy('Erc20Token', "E20TK");
 
   await token.deployed();
   console.log(`Erc20Token deployed to ${token.address}`);
